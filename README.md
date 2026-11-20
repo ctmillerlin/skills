@@ -10,10 +10,16 @@ A collection of reusable [Agent Skills](https://agentskills.io/) for coding agen
 
 ## Installation
 
-Install skills via the [skills CLI](https://github.com/vercel-labs/skills):
+Install skills interactively via the [skills CLI](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add ctmillerlin/skills
+```
+
+Or install a specific skill directly (add `-g` to install globally):
+
+```bash
+npx skills add ctmillerlin/skills --skill tech-diagram
 ```
 
 Or copy a skill directory from `skills/` into your agent's skills directory (for example, `.agents/skills/` or `~/.claude/skills/`).
