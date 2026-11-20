@@ -1,0 +1,6 @@
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+
+# OS litter
+.DS_Store

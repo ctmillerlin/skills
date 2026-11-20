@@ -5,6 +5,7 @@ description: >-
   data flow, multi-stage migration or cutover workflows) as a single-screen,
   self-contained HTML/SVG file. Use when the user asks to draw a diagram,
   redesign an existing diagram, or visualize how a technical design works.
+license: Apache-2.0
 ---
 
 # Technical Diagram
