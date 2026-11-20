@@ -5,6 +5,7 @@ description: >-
   data flow, multi-stage migration or cutover workflows) as a single-screen,
   self-contained HTML/SVG file. Use when the user asks to draw a diagram,
   redesign an existing diagram, or visualize how a technical design works.
+license: Apache-2.0
 ---
 
 # Technical Diagram
@@ -55,29 +56,16 @@ Check provided docs or quickly scan the current workspace for relevant docs/conf
 
 ### 4. Visual Verification (Required Before Delivery)
 
-Render screenshots to a reusable `/tmp` directory (never clutter the project directory, and avoid `rm -rf` cleanup commands that interrupt users with shell approval prompts), then inspect every PNG with your image-reading tool before delivering.
+Render screenshots to a reusable system temp directory (never clutter the project directory, and avoid destructive cleanup commands that trigger approval prompts), then inspect every PNG with your image-reading tool before delivering.
 
-Detect an available Chromium/Chrome binary and capture views in parallel—give each parallel process its own `--user-data-dir` and `--virtual-time-budget=1500` to avoid profile lock contention and slow external font timeouts:
+Use the bundled cross-platform helper script [scripts/preview.py](./scripts/preview.py) (zero third-party dependencies; works on macOS, Linux, and Windows, detects Chrome/Chromium/Edge automatically, isolates `--user-data-dir` per parallel capture, and handles root container `--no-sandbox`):
 
 ```bash
-OUT_DIR="/tmp/tech-diagram-preview"
-mkdir -p "$OUT_DIR"
-CHROME=""
-for bin in \
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  "/Applications/Chromium.app/Contents/MacOS/Chromium" \
-  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" \
-  google-chrome chromium chromium-browser; do
-  if command -v "$bin" >/dev/null 2>&1 || [ -x "$bin" ]; then CHROME="$bin"; break; fi
-done
+# Static diagram: captures light.png + dark.png
+python3 <skill-dir>/scripts/preview.py <HTML_PATH>
 
-FLAGS=(--headless=new --disable-gpu --no-first-run --no-default-browser-check --virtual-time-budget=1500 --window-size=1400,1080)
-
-# Static diagram: light + dark
-"$CHROME" "${FLAGS[@]}" --user-data-dir="$OUT_DIR/p-light" --screenshot="$OUT_DIR/light.png" "file://<ABS_PATH>?theme=light" 2>/dev/null &
-"$CHROME" "${FLAGS[@]}" --user-data-dir="$OUT_DIR/p-dark"  --screenshot="$OUT_DIR/dark.png"  "file://<ABS_PATH>?theme=dark"  2>/dev/null &
-wait
-# Interactive diagram: capture ?phase=1..N&theme=light plus at least one &theme=dark in parallel (each with its own --user-data-dir)
+# Interactive diagram (N states): captures phase-1..N-light.png + phase-1-dark.png
+python3 <skill-dir>/scripts/preview.py <HTML_PATH> --phases <N>
 ```
 
 - **Coverage**:
@@ -89,9 +77,9 @@ wait
   3. Colored titles, pills, and edge labels keep their intended accent colors; active solid edges remain visually distinct from dashed standby/fallback edges.
   4. Dark mode contrast is crisp across surfaces, borders, text, and arrows.
   5. Entire diagram (including bottom legend) fits cleanly in a single screen without wasted whitespace.
-- If no headless browser or image-reading capability exists in the environment, state that clearly and ask the user to inspect each state and dark mode in their browser.
+- If no Chromium-based browser, Python 3 runtime, or image-reading capability exists in the environment, state that clearly and ask the user to inspect each state and dark mode in their browser.
 
 ### 5. Deliver
 
-- Open the file in a desktop browser when available (`open "<PATH>"` on macOS, `xdg-open "<PATH>"` on Linux; skip in headless/remote sessions).
+- Open the file in a desktop browser when available (`python3 <skill-dir>/scripts/preview.py <HTML_PATH> --open-only`, or pass `--open` on the final verification capture; skips automatically in headless/remote sessions).
 - Reply with the file path, a concise summary of the mechanism/states depicted and what changed, plus any unverified assumptions that need user confirmation.
