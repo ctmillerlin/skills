@@ -20,10 +20,17 @@ This is a **public** repository. Before committing, verify that all files contai
 - No internal company names, domains, IPs, URLs, or project identifiers.
 - No secrets, tokens, credentials, or local machine paths.
 
+## Branch & PR Workflow
+
+- `main` is the only long-lived branch; do not push directly to `main`.
+- Make changes on a short-lived branch (for example, `feat/<skill-name>`, `fix/<skill-name>`, `chore/<topic>`) and open a pull request.
+- Merge only after all CI checks (`Validate Spec`, `Security Scan`) pass.
+- Use **Squash and merge**; the PR title must follow the Commit Messages format below because it becomes the commit message on `main`.
+
 ## Commit Messages
 
 - **Format**: `type(scope): description` (Conventional Commits v1.0.0 core).
-  - Types: `feat`, `fix`, `refactor`, `docs`, `chore` (add `test` / `ci` only if adopted).
+  - Types: `feat`, `fix`, `refactor`, `docs`, `ci`, `chore` (add `test` only if adopted).
   - Scope: skill directory name for skill changes (e.g., `feat(tech-diagram): ...`); omit for repository-wide changes.
 - **Style**: English imperative mood (`add`, not `added`), lowercase first letter, no trailing period.
 - **Atomicity**: one commit does one thing in one sentence.

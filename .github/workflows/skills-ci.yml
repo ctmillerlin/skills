@@ -1,0 +1,67 @@
+name: Skills CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    name: Detect Skills
+    runs-on: ubuntu-latest
+    outputs:
+      has_skills: ${{ steps.check.outputs.has_skills }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -d skills ] && [ -n "$(find skills -mindepth 1 -maxdepth 1 -type d -print -quit)" ]; then
+            echo "has_skills=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_skills=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  validate-spec:
+    name: Validate Spec
+    needs: detect
+    if: needs.detect.outputs.has_skills == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install skills-ref
+        run: |
+          pip install --quiet \
+            "git+https://github.com/agentskills/agentskills.git@83021e2be457a9b6679148719c1f6074f0ad975e#subdirectory=skills-ref"
+
+      - name: Validate all skills
+        run: |
+          shopt -s nullglob
+          for dir in skills/*/; do
+            echo "Validating ${dir%/}"
+            skills-ref validate "${dir%/}"
+          done
+
+  security-scan:
+    name: Security Scan
+    needs: detect
+    if: needs.detect.outputs.has_skills == 'true'
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    uses: cisco-ai-defense/skill-scanner/.github/workflows/scan-skills.yml@2.3.2
+    with:
+      skill_path: skills
+      scanner_version: "2.3.2"
+      policy: balanced
+      fail_on_severity: high
+      upload_sarif: true
