@@ -2,6 +2,12 @@
 
 A collection of reusable [Agent Skills](https://agentskills.io/) for coding agents.
 
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| [`tech-diagram`](./skills/tech-diagram/SKILL.md) | Design or redesign technical diagrams (system architecture, network topology, data flow, multi-stage migration/cutover workflows) as a single-screen, self-contained HTML/SVG file with dark mode and headless screenshot verification. |
+
 ## Installation
 
 Install skills via the [skills CLI](https://github.com/vercel-labs/skills):
